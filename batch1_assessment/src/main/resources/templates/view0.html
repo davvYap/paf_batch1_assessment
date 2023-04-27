@@ -11,6 +11,9 @@
 
       .errorCss {
         color: red;
+        border-style: dashed;
+        width: 300px;
+        margin-top: 20px;
       }
     </style>
     <title>Fund Transfer</title>
@@ -40,7 +43,22 @@
       <br />
       <div>
         <label for="amount">Amount:</label>
-        <input name="amount" type="number" data-th-field="*{amount}" />
+        <input
+          name="amount"
+          type="number"
+          step="0.01"
+          pattern="^\d+(?:\.\d{1,2})?$"
+          data-th-field="*{amount}" />
+      </div>
+      <br />
+      <div>
+        <label for="type">Type of Transaction:</label>
+        <select name="type" data-th-field="*{type}">
+          <option value="daily">Daily</option>
+          <option value="montly">Montly</option>
+          <option value="quarterly">Quarterly</option>
+          <option value="yearly">Yearly</option>
+        </select>
       </div>
 
       <div>
@@ -49,9 +67,16 @@
       </div>
       <br />
       <button type="submit">Transfer</button>
-      <div data-th-if="${#fields.hasGlobalErrors()}">
-        <p data-th-each="err: ${#fields.globalErrors()}" data-th-text="${err}" class="errorCss"></p>
+      <div data-th-if="${#fields.hasGlobalErrors()}" class="errorCss">
+        <p
+          data-th-each="err: ${#fields.globalErrors()}"
+          data-th-text="${err}"
+          style="padding-left: 20px"></p>
       </div>
     </form>
+    <br />
+    <div>
+      <button><a href="/checkTransactions">Check Transaction History</a></button>
+    </div>
   </body>
 </html>
