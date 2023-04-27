@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        margin-left: 200px;
+      }
+
+      .errorCss {
+        color: red;
+      }
+    </style>
+    <title>Fund Transfer</title>
+  </head>
+  <body>
+    <h1>Funds Transfer</h1>
+    <form action="/transfer" method="post" data-th-object="${transaction}">
+      <div>
+        <label for="fromAccountId">From Account:</label>
+        <select name="fromAccountId" data-th-field="*{fromAccountId}">
+          <option
+            data-th-each="acc: ${accounts}"
+            data-th-text="${acc.getNameConcatAccountId()}"
+            data-th-value="${acc.getAccountId()}"></option>
+        </select>
+      </div>
+      <br />
+      <div>
+        <label for="toAccountId">To Account:</label>
+        <select name="toAccountId" data-th-field="*{toAccountId}">
+          <option
+            data-th-each="acc: ${accounts}"
+            data-th-text="${acc.getNameConcatAccountId()}"
+            data-th-value="${acc.getAccountId()}"></option>
+        </select>
+      </div>
+      <br />
+      <div>
+        <label for="amount">Amount:</label>
+        <input name="amount" type="number" data-th-field="*{amount}" />
+      </div>
+
+      <div>
+        <p>Comment</p>
+        <textarea name="comment" id="" cols="30" rows="10" data-th-field="*{comment}"></textarea>
+      </div>
+      <br />
+      <button type="submit">Transfer</button>
+      <div data-th-if="${#fields.hasGlobalErrors()}">
+        <p data-th-each="err: ${#fields.globalErrors()}" data-th-text="${err}" class="errorCss"></p>
+      </div>
+    </form>
+  </body>
+</html>
