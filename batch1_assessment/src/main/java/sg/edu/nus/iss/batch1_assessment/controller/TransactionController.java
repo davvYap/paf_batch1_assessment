@@ -19,6 +19,7 @@ import jakarta.validation.Valid;
 import sg.edu.nus.iss.batch1_assessment.exception.TransactionException;
 import sg.edu.nus.iss.batch1_assessment.model.Account;
 import sg.edu.nus.iss.batch1_assessment.model.Transaction;
+import sg.edu.nus.iss.batch1_assessment.model.TransactionByType;
 import sg.edu.nus.iss.batch1_assessment.service.LogAuditService;
 import sg.edu.nus.iss.batch1_assessment.service.TransactionService;
 
@@ -153,7 +154,7 @@ public class TransactionController {
     }
 
     @GetMapping(path = "/getTransactions")
-    public String geTransactions(Model model, @RequestParam String accountId) {
+    public String getTransactions(Model model, @RequestParam String accountId) {
 
         List<Account> accounts = transactionService.getAllAccounts();
         model.addAttribute("accounts", accounts);
@@ -161,5 +162,20 @@ public class TransactionController {
         Account account = transactionService.getAccountTransactionHistory(accountId);
         model.addAttribute("account", account);
         return "view2";
+    }
+
+    @GetMapping(path = "/checkTransactionsByType")
+    public String checkTransactionsByType(Model model) {
+        List<TransactionByType> t = transactionService.getTransactionByType();
+        TransactionByType daily = t.stream().filter(e -> e.getType().equalsIgnoreCase("daily")).toList().get(0);
+        TransactionByType montly = t.stream().filter(e -> e.getType().equalsIgnoreCase("montly")).toList().get(0);
+        TransactionByType quarterly = t.stream().filter(e -> e.getType().equalsIgnoreCase("quarterly")).toList().get(0);
+        TransactionByType yearly = t.stream().filter(e -> e.getType().equalsIgnoreCase("yearly")).toList().get(0);
+        model.addAttribute("daily", daily);
+        model.addAttribute("montly", montly);
+        model.addAttribute("quarterly", quarterly);
+        model.addAttribute("yearly", yearly);
+        model.addAttribute("transByType", t);
+        return "view3";
     }
 }

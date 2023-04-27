@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import sg.edu.nus.iss.batch1_assessment.exception.TransactionException;
 import sg.edu.nus.iss.batch1_assessment.model.Account;
 import sg.edu.nus.iss.batch1_assessment.model.Transaction;
+import sg.edu.nus.iss.batch1_assessment.model.TransactionByType;
 import sg.edu.nus.iss.batch1_assessment.repository.TransactionRepository;
 
 @Service
@@ -104,5 +105,17 @@ public class TransactionService {
         Document selectedAccount = transactions.get(0);
 
         return Account.convertFromDocument(selectedAccount);
+    }
+
+    public List<TransactionByType> getTransactionByType() {
+        Optional<List<Document>> documents = transactionRepository.getTransactionByType();
+        if (documents.isEmpty()) {
+            return null;
+        }
+        List<Document> transactions = documents.get();
+        List<TransactionByType> transactionByTypes = transactions.stream()
+                .map(t -> TransactionByType.convertFromDocument(t))
+                .toList();
+        return transactionByTypes;
     }
 }

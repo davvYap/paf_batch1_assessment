@@ -7,11 +7,16 @@ import java.util.Optional;
 
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.LookupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
+import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
+import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,6 +27,7 @@ import com.mongodb.client.result.DeleteResult;
 
 import sg.edu.nus.iss.batch1_assessment.model.Account;
 import sg.edu.nus.iss.batch1_assessment.model.Transaction;
+import sg.edu.nus.iss.batch1_assessment.model.TransactionByType;
 
 import static sg.edu.nus.iss.batch1_assessment.repository.DBQueries.*;
 
@@ -48,7 +54,7 @@ public class TransactionRepository {
     }
 
     public boolean deposit(String receiverId, double amount) {
-        int row = jdbcTemplate.update(UPDATE_ACCOUNT_BALANCE_TRANSFER, amount, receiverId);
+        int row = jdbcTemplate.update(UPDATE_ACCOUNT_BALANCE_RECEIVE, amount, receiverId);
         return row > 0;
     }
 
@@ -81,5 +87,24 @@ public class TransactionRepository {
 
         List<Document> documents = rs.getMappedResults();
         return Optional.ofNullable(documents);
+    }
+
+    public Optional<List<Document>> getTransactionByType() {
+        LookupOperation lOpTransfer = Aggregation.lookup("accounts", "from_Account_Id", "accountId",
+                "transfer_account");
+        LookupOperation lOpReceive = Aggregation.lookup("accounts", "to_Account_Id", "accountId", "receive_acount");
+        ProjectionOperation pOp = Aggregation.project().andExclude("transfer_account._id")
+                .andExclude("receive_acount._id");
+
+        GroupOperation gOp = Aggregation.group("type")
+                .sum("amount").as("total_amount")
+                .push("transaction_Id").as("transactions")
+                .count().as("transaction_count");
+        SortOperation sOp = Aggregation.sort(Sort.by(Direction.ASC, "_id"));
+
+        Aggregation pipeline = Aggregation.newAggregation(lOpTransfer, lOpReceive, pOp, gOp, sOp);
+        AggregationResults<Document> rs = mongoTemplate.aggregate(pipeline, "transaction", Document.class);
+
+        return Optional.ofNullable(rs.getMappedResults());
     }
 }

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      table,
+      th,
+      td {
+        border: 1px solid black;
+      }
+
+      .trans-id {
+        color: darkblue;
+      }
+    </style>
+    <title>Types</title>
+  </head>
+  <body>
+    <h1>Transaction By Types</h1>
+    <div data-th-each="t : ${transByType}">
+      <p>Transaction type: <span data-th-text="${t.getType()}" class="trans-id"></span></p>
+      <p>Total amount: <span data-th-text="${t.getTotalAmount()}" class="trans-id"></span></p>
+      <p>
+        Transaction count: <span data-th-text="${t.getTransactionCount()}" class="trans-id"></span>
+      </p>
+      <table>
+        <tr>
+          <th>Transaction ID</th>
+        </tr>
+        <tr data-th-each="id : ${t.getTransactionsId()}">
+          <td data-th-text="${id}" class="trans-id"></td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>
